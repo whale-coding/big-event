@@ -78,7 +78,7 @@ public class UserController {
 
     /**
      * 获取登录用户的详细信息
-     * @param token 请求头中的token
+     // * @param token 请求头中的token
      * @return 用户的信息
      */
     @GetMapping("/userInfo")
@@ -96,5 +96,18 @@ public class UserController {
         User user = userService.findUserByUsername(username);
         // 返回用户信息
         return Result.success(user);
+    }
+
+    /**
+     * 更新用户信息
+     * @param user 要更新的用户
+     * @return 是否更新成功
+     * 注解@RequestBody的作用：将前端传过来的json字符串转换为一个实体类对象
+     * 注解@PutMapping常用于update方法。
+     */
+    @PutMapping("/update")
+    public Result update(@RequestBody @Validated User user){
+        userService.update(user);
+        return Result.success();
     }
 }
