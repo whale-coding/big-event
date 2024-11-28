@@ -57,4 +57,15 @@ public class UserServiceImpl implements UserService {
         Integer id = (Integer) claims.get("id");
         userMapper.updateAvatar(avatarUrl, id);
     }
+
+    // 更新密码
+    @Override
+    public void updatePwd(String newPwd) {
+        // 从ThreadLocal中获取载荷，即用户信息
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        // 从载荷中获取用户id
+        Integer id = (Integer) claims.get("id");
+        String md5Pwd = Md5Util.getMD5String(newPwd);
+        userMapper.updatePwd(md5Pwd,id);
+    }
 }

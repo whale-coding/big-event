@@ -9,6 +9,7 @@ import com.star.utils.ThreadLocalUtil;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.Pattern;
 import org.hibernate.validator.constraints.URL;
+import org.springframework.util.StringUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -123,6 +124,42 @@ public class UserController {
     @PatchMapping("/updateAvatar")
     public Result updateAvatar(@RequestParam @URL String avatarUrl){
         userService.updateAvatar(avatarUrl);
+        return Result.success();
+    }
+
+    @PatchMapping("/updatePwd")
+    public Result updatePwd(@RequestBody Map<String, String> params){
+        // 从请求参数中获取参数
+        String oldPwd = params.get("old_pwd");  // 旧密码
+        String newPwd = params.get("new_pwd");  // 新密码
+        String rePwd = params.get("re_pwd");  // 确认密码
+
+        // 从ThreadLocal中获取载荷，即用户信息
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        // 从载荷中获取用户名
+        String username = (String) claims.get("username");
+        // 根据用户名查询用户
+        User loginUser = userService.findUserByUsername(username);
+
+        // 参数非空校验
+        if (!StringUtils.hasLength(oldPwd) || !StringUtils.hasLength(newPwd) || !StringUtils.hasLength(rePwd)){
+            return Result.error("缺少必要的参数");
+        }
+        // 校验原密码是否正确
+        if (!loginUser.getPassword().equals(Md5Util.getMD5String(oldPwd))){
+            return Result.error("原密码填写不正确");
+        }
+        // 校验新密码是否与原密码相同
+        if (newPwd.equals(oldPwd)){
+            return Result.error("新密码与原密码相同，请重新设置");
+        }
+        // 校验rePwd和newPwd两次填写的密码是否一致
+        if (!rePwd.equals(newPwd)){
+            return Result.error("两次填写的新密码不一致");
+        }
+
+        // 调用service完成密码更新
+        userService.updatePwd(newPwd);
         return Result.success();
     }
 }
