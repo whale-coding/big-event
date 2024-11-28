@@ -1,6 +1,7 @@
 package com.star.interceptors;
 
 import com.star.utils.JwtUtil;
+import com.star.utils.ThreadLocalUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
@@ -17,7 +18,7 @@ import java.util.Map;
 @Component  // 将拦截器加入到Spring容器里面
 public class LoginInterceptor implements HandlerInterceptor {
     /**
-     * 重写拦截方法
+     * 重写请求到达之前的拦截方法，会在请求到达接口之前执行
      * @param request 请求头
      * @param response 响应头
      * @param handler 处理器
@@ -32,6 +33,11 @@ public class LoginInterceptor implements HandlerInterceptor {
         try {
             Map<String, Object> claims = JwtUtil.parseToken(token);
             // 如果可以解析token不抛出异常，放行
+
+            // 将载荷claims即业务数据存储到ThreadLocal中，减少参数的传递
+            ThreadLocalUtil.set(claims);
+
+            // 放行
             return true;
         }catch (Exception e){
             // 捕获异常，说明token验证失败
@@ -39,5 +45,12 @@ public class LoginInterceptor implements HandlerInterceptor {
             // 不放行
             return false;
         }
+    }
+
+    // 重写请结束之后的拦截方法，会在请求接口之后执行
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        // 清空ThreadLocal中的数据，防止内存泄露
+        ThreadLocalUtil.remove();
     }
 }

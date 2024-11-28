@@ -5,12 +5,11 @@ import com.star.pojo.User;
 import com.star.service.UserService;
 import com.star.utils.JwtUtil;
 import com.star.utils.Md5Util;
+import com.star.utils.ThreadLocalUtil;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.Pattern;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -75,5 +74,27 @@ public class UserController {
         }
         // 密码校验失败
         return Result.error("用户名或密码错误，请重新输入");
+    }
+
+    /**
+     * 获取登录用户的详细信息
+     * @param token 请求头中的token
+     * @return 用户的信息
+     */
+    @GetMapping("/userInfo")
+    public Result<User> userInfo(/*@RequestHeader(name ="Authorization") String token*/){
+        // 解析token
+        // Map<String, Object> claims = JwtUtil.parseToken(token);
+        // 从解析后的载荷中获取用户名
+        // String username = (String) claims.get("username");
+
+        // 从ThreadLocal中获取载荷，即用户信息
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        // 从载荷中获取用户名
+        String username = (String) claims.get("username");
+        // 根据用户名查询用户
+        User user = userService.findUserByUsername(username);
+        // 返回用户信息
+        return Result.success(user);
     }
 }
