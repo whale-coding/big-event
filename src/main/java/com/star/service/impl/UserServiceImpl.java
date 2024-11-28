@@ -4,10 +4,13 @@ import com.star.mapper.UserMapper;
 import com.star.pojo.User;
 import com.star.service.UserService;
 import com.star.utils.Md5Util;
+import com.star.utils.ThreadLocalUtil;
 import jakarta.annotation.Resource;
+import org.apache.ibatis.annotations.Insert;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * @Classname: UserServiceImpl
@@ -43,5 +46,15 @@ public class UserServiceImpl implements UserService {
         user.setUpdateTime(LocalDateTime.now());  // 设置更新时间
         // 更新用户信息
         userMapper.update(user);
+    }
+
+    // 更新用户头像
+    @Override
+    public void updateAvatar(String avatarUrl) {
+        // 从ThreadLocal中获取载荷，即用户信息
+        Map<String, Object> claims = ThreadLocalUtil.get();
+        // 从载荷中获取用户id
+        Integer id = (Integer) claims.get("id");
+        userMapper.updateAvatar(avatarUrl, id);
     }
 }

@@ -21,4 +21,6 @@ public interface UserMapper {
     void register(String username, String password);  // 用户注册
     @Update("update user set nickname=#{nickname}, email=#{email}, update_time=#{updateTime} where id=#{id}")
     void update(User user);  // 更新用户信息
+    @Update("update user set user_pic=#{avatarUrl}, update_time=now() where id=#{id}")
+    void updateAvatar(String avatarUrl, Integer id);
 }

@@ -8,6 +8,7 @@ import com.star.utils.Md5Util;
 import com.star.utils.ThreadLocalUtil;
 import jakarta.annotation.Resource;
 import jakarta.validation.constraints.Pattern;
+import org.hibernate.validator.constraints.URL;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -103,11 +104,25 @@ public class UserController {
      * @param user 要更新的用户
      * @return 是否更新成功
      * 注解@RequestBody的作用：将前端传过来的json字符串转换为一个实体类对象
-     * 注解@PutMapping常用于update方法。
+     * 注解@PutMapping：用于替换整个资源。
      */
     @PutMapping("/update")
     public Result update(@RequestBody @Validated User user){
         userService.update(user);
+        return Result.success();
+    }
+
+    /**
+     * 更新用户头像
+     * @param avatarUrl 用户头像Url
+     * @return 是否更新成功
+     * 注解@PatchMapping：用于将 HTTP PATCH 请求映射到指定的处理方法。HTTP PATCH 方法通常用于更新资源的部分内容，而不是替换整个资源。
+     * 注解@RequestParam：用于从HTTP请求中绑定参数到控制器方法参数的注解。确保传递的参数名称必须是avatarUrl
+     * 注解@URL：validation参数校验，用于校验URL是否合法
+     */
+    @PatchMapping("/updateAvatar")
+    public Result updateAvatar(@RequestParam @URL String avatarUrl){
+        userService.updateAvatar(avatarUrl);
         return Result.success();
     }
 }
