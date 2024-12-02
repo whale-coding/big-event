@@ -28,7 +28,7 @@ public class CategoryController {
      * @return 是否新增成功
      */
     @PostMapping
-    public Result add(@Validated @RequestBody Category category){
+    public Result add(@Validated(Category.Add.class) @RequestBody Category category){
         categoryService.add(category);
         return Result.success();
     }
@@ -60,7 +60,7 @@ public class CategoryController {
      * @return 是否更新成功
      */
     @PutMapping
-    public Result update(@RequestBody @Validated Category category){
+    public Result update(@RequestBody @Validated(Category.Update.class) Category category){
         categoryService.update(category);
         return Result.success();
     }
