@@ -1,5 +1,6 @@
 package com.star.service;
 
+import com.star.common.PageBean;
 import com.star.pojo.Article;
 
 /**
@@ -10,4 +11,7 @@ import com.star.pojo.Article;
  */
 public interface ArticleService {
     void add(Article article);  // 新增文章
+
+    // 条件分页列表查询
+    PageBean<Article> list(Integer pageNum, Integer pageSize, Integer categoryId, String state);
 }
