@@ -2,8 +2,10 @@ package com.star.interceptors;
 
 import com.star.utils.JwtUtil;
 import com.star.utils.ThreadLocalUtil;
+import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
@@ -17,6 +19,10 @@ import java.util.Map;
  */
 @Component  // 将拦截器加入到Spring容器里面
 public class LoginInterceptor implements HandlerInterceptor {
+
+    @Resource
+    private StringRedisTemplate stringRedisTemplate;
+
     /**
      * 重写请求到达之前的拦截方法，会在请求到达接口之前执行
      * @param request 请求头
@@ -31,6 +37,12 @@ public class LoginInterceptor implements HandlerInterceptor {
         String token = request.getHeader("Authorization");
         // token验证
         try {
+            // 从redis中获取相同的token
+            String redisToken = stringRedisTemplate.opsForValue().get(token);
+            if (redisToken==null){
+                // token已经失效，抛出异常之后会走到catch块中，不放行
+                throw new RuntimeException();
+            }
             Map<String, Object> claims = JwtUtil.parseToken(token);
             // 如果可以解析token不抛出异常，放行
 
