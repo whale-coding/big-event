@@ -1,6 +1,7 @@
 package com.star.controller;
 
 import com.star.common.Result;
+import com.star.utils.AliOssUtil;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -25,7 +26,10 @@ public class FileUploadController {
         // 保证文件名是唯一的，防止文件覆盖
         assert originalFilename != null;
         String filename = UUID.randomUUID().toString() + originalFilename.substring(originalFilename.lastIndexOf("."));
-        file.transferTo(new File("/Users/macbook/Desktop/"+filename));  // 将文件移动到指定目录
-        return Result.success("url访问地址。。。。。。");
+        // file.transferTo(new File("/Users/macbook/Desktop/"+filename));  // 将文件移动到指定目录
+
+        // 使用阿里云工具类将图片上传到阿里云
+        String url = AliOssUtil.uploadFile(filename, file.getInputStream());
+        return Result.success(url);
     }
 }
